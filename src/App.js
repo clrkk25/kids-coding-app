@@ -40,23 +40,45 @@ function App() {
 
   const playCardSound = () => {
     setPlaySound(true);
-    // 创建音频对象并播放
-    const audio = new Audio(`${process.env.PUBLIC_URL}/${currentCard.sound}`);
-    audio.play().catch(error => {
-      console.error('播放音频时出错:', error);
-      setPlaySound(false);
-    });
     
-    // 监听音频播放结束事件
-    audio.addEventListener('ended', () => {
-      setPlaySound(false);
-    });
+    // 检查音频文件是否存在
+    const audioPath = `${process.env.PUBLIC_URL}/${currentCard.sound}`;
     
-    // 添加错误处理，确保状态能正确重置
-    audio.addEventListener('error', () => {
-      console.error('音频加载失败:', currentCard.sound);
-      setPlaySound(false);
-    });
+    // 使用fetch检查文件是否存在
+    fetch(audioPath)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`音频文件未找到: ${audioPath}`);
+        }
+        
+        // 创建音频对象并播放
+        const audio = new Audio(audioPath);
+        audio.play()
+          .then(() => {
+            // 播放成功
+            console.log('音频播放开始');
+          })
+          .catch(error => {
+            console.error('播放音频时出错:', error);
+            setPlaySound(false);
+          });
+        
+        // 监听音频播放结束事件
+        audio.addEventListener('ended', () => {
+          console.log('音频播放结束');
+          setPlaySound(false);
+        });
+        
+        // 添加错误处理，确保状态能正确重置
+        audio.addEventListener('error', (e) => {
+          console.error('音频加载失败:', audioPath, e);
+          setPlaySound(false);
+        });
+      })
+      .catch(error => {
+        console.error('获取音频文件时出错:', error);
+        setPlaySound(false);
+      });
   };
 
   return (
