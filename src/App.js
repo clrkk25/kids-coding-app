@@ -40,8 +40,16 @@ function App() {
 
   const playCardSound = () => {
     setPlaySound(true);
-    // 实际应用中这里会播放音频
-    setTimeout(() => setPlaySound(false), 1000);
+    // 创建音频对象并播放
+    const audio = new Audio(`${process.env.PUBLIC_URL}/${currentCard.sound}`);
+    audio.play().catch(error => {
+      console.error('播放音频时出错:', error);
+    });
+    
+    // 监听音频播放结束事件
+    audio.addEventListener('ended', () => {
+      setPlaySound(false);
+    });
   };
 
   return (
